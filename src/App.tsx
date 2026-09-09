@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { GameCanvas } from './components/GameCanvas';
 import { audio } from './game/audio';
+import { downloadSourceZip } from './game/sourceFiles';
 
 type Screen = 'menu' | 'playing' | 'gameover';
 
@@ -110,6 +111,17 @@ function MenuScreen({ onStart, audioEnabled, onToggleAudio }: {
   onToggleAudio: () => void;
 }) {
   const [showControls, setShowControls] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await downloadSourceZip();
+    } catch (e) {
+      console.error('Download failed:', e);
+    }
+    setDownloading(false);
+  };
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center z-40">
@@ -134,6 +146,14 @@ function MenuScreen({ onStart, audioEnabled, onToggleAudio }: {
           className="btn-neon-pink game-font text-sm"
         >
           CONTRÔLES
+        </button>
+
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="game-font text-sm px-6 py-2 border border-green-500 text-green-400 hover:bg-green-500 hover:text-black transition-all duration-300 disabled:opacity-50"
+        >
+          {downloading ? '⏳ PRÉPARATION...' : '📦 TÉLÉCHARGER SOURCES (.zip)'}
         </button>
 
         <button
