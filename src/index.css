@@ -12,7 +12,7 @@
 }
 
 body {
-  background-color: #0a0a0f;
+  background-color: #000;
   color: #ffffff;
   overflow: hidden;
   font-family: 'Rajdhani', sans-serif;
@@ -40,11 +40,6 @@ body {
 .neon-border {
   box-shadow: 0 0 5px #0fa, 0 0 10px #0fa, inset 0 0 5px #0fa, inset 0 0 10px #0fa;
   border: 1px solid #0fa;
-}
-
-.neon-border-pink {
-  box-shadow: 0 0 5px #f0a, 0 0 10px #f0a, inset 0 0 5px #f0a, inset 0 0 10px #f0a;
-  border: 1px solid #f0a;
 }
 
 .btn-neon {
@@ -131,4 +126,11 @@ body {
 @keyframes scanline {
   0% { background-position: 0 0; }
   100% { background-position: 0 100%; }
+}
+
+/* Canvas styles */
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
