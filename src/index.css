@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --font-game: 'Orbitron', monospace;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #ffffff;
+  overflow: hidden;
+  font-family: 'Rajdhani', sans-serif;
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.neon-text {
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #0fa, 0 0 82px #0fa, 0 0 92px #0fa;
+}
+
+.neon-text-pink {
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #f0a, 0 0 82px #f0a, 0 0 92px #f0a;
+}
+
+.neon-text-cyan {
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #0af, 0 0 82px #0af;
+}
+
+.neon-border {
+  box-shadow: 0 0 5px #0fa, 0 0 10px #0fa, inset 0 0 5px #0fa, inset 0 0 10px #0fa;
+  border: 1px solid #0fa;
+}
+
+.neon-border-pink {
+  box-shadow: 0 0 5px #f0a, 0 0 10px #f0a, inset 0 0 5px #f0a, inset 0 0 10px #f0a;
+  border: 1px solid #f0a;
+}
+
+.btn-neon {
+  padding: 0.75rem 2rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  border: 2px solid #22d3ee;
+  color: #22d3ee;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Orbitron', monospace;
+}
+
+.btn-neon:hover {
+  background: #22d3ee;
+  color: #000;
+  box-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+}
+
+.btn-neon:active {
+  transform: scale(0.95);
+}
+
+.btn-neon-pink {
+  padding: 0.75rem 2rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  border: 2px solid #ec4899;
+  color: #ec4899;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Orbitron', monospace;
+}
+
+.btn-neon-pink:hover {
+  background: #ec4899;
+  color: #000;
+  box-shadow: 0 0 20px #f0a, 0 0 40px #f0a;
+}
+
+.btn-neon-pink:active {
+  transform: scale(0.95);
+}
+
+.game-font {
+  font-family: 'Orbitron', monospace;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.scanline {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 255, 170, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
