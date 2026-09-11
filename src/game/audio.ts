@@ -1,8 +1,7 @@
-class AudioSystem3D {
+// Audio system using Web Audio API for procedural sound generation
+class AudioSystem {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
-  private engineOsc: OscillatorNode | null = null;
-  private engineGain: GainNode | null = null;
   private enabled = true;
 
   init() {
@@ -30,7 +29,7 @@ class AudioSystem3D {
     }
   }
 
-  private playTone(freq: number, duration: number, type: OscillatorType = 'sine', volume = 0.3, freqEnd?: number) {
+  private playTone(freq: number, duration: number, type: OscillatorType = 'square', volume = 0.3, freqEnd?: number) {
     if (!this.enabled || !this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -47,7 +46,7 @@ class AudioSystem3D {
     osc.stop(this.ctx.currentTime + duration);
   }
 
-  private playNoise(duration: number, volume = 0.2, filterFreq = 2000) {
+  private playNoise(duration: number, volume = 0.2) {
     if (!this.enabled || !this.ctx || !this.masterGain) return;
     const bufferSize = this.ctx.sampleRate * duration;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -62,7 +61,7 @@ class AudioSystem3D {
     gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(filterFreq, this.ctx.currentTime);
+    filter.frequency.setValueAtTime(3000, this.ctx.currentTime);
     filter.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + duration);
     source.connect(filter);
     filter.connect(gain);
@@ -70,60 +69,51 @@ class AudioSystem3D {
     source.start();
   }
 
-  collect() {
-    this.playTone(880, 0.15, 'sine', 0.2, 1760);
-    setTimeout(() => this.playTone(1320, 0.1, 'sine', 0.15, 2640), 80);
+  shoot() {
+    this.playTone(800, 0.1, 'square', 0.15, 200);
   }
 
-  crash() {
-    this.playNoise(0.5, 0.4, 3000);
-    this.playTone(100, 0.4, 'sawtooth', 0.3, 30);
-    this.playTone(60, 0.6, 'square', 0.2, 20);
+  enemyShoot() {
+    this.playTone(300, 0.15, 'sawtooth', 0.1, 100);
   }
 
-  nearMiss() {
-    this.playTone(440, 0.08, 'sine', 0.1, 880);
+  explosion() {
+    this.playNoise(0.4, 0.3);
+    this.playTone(100, 0.3, 'sawtooth', 0.2, 30);
   }
 
-  speedUp() {
-    this.playTone(200, 0.3, 'sawtooth', 0.15, 400);
+  bigExplosion() {
+    this.playNoise(0.6, 0.4);
+    this.playTone(80, 0.5, 'sawtooth', 0.3, 20);
+    this.playTone(60, 0.7, 'square', 0.2, 15);
   }
 
-  startEngine() {
-    if (!this.enabled || !this.ctx || !this.masterGain) return;
-    if (this.engineOsc) return;
-    
-    this.engineOsc = this.ctx.createOscillator();
-    this.engineGain = this.ctx.createGain();
-    this.engineOsc.type = 'sawtooth';
-    this.engineOsc.frequency.value = 80;
-    this.engineGain.gain.value = 0.05;
-    this.engineOsc.connect(this.engineGain);
-    this.engineGain.connect(this.masterGain);
-    this.engineOsc.start();
+  powerUp() {
+    this.playTone(400, 0.1, 'sine', 0.2, 800);
+    setTimeout(() => this.playTone(600, 0.1, 'sine', 0.2, 1200), 100);
+    setTimeout(() => this.playTone(800, 0.15, 'sine', 0.2, 1600), 200);
   }
 
-  updateEngine(speed: number) {
-    if (!this.engineOsc || !this.engineGain) return;
-    const freq = 60 + speed * 30;
-    this.engineOsc.frequency.setTargetAtTime(freq, this.ctx!.currentTime, 0.1);
-    this.engineGain.gain.setTargetAtTime(0.03 + speed * 0.01, this.ctx!.currentTime, 0.1);
+  hit() {
+    this.playTone(200, 0.1, 'square', 0.2, 50);
   }
 
-  stopEngine() {
-    if (this.engineOsc) {
-      this.engineOsc.stop();
-      this.engineOsc = null;
-      this.engineGain = null;
-    }
+  playerHit() {
+    this.playNoise(0.3, 0.4);
+    this.playTone(150, 0.3, 'sawtooth', 0.3, 50);
   }
 
   gameOver() {
-    this.stopEngine();
     this.playTone(400, 0.3, 'square', 0.2, 200);
     setTimeout(() => this.playTone(300, 0.3, 'square', 0.2, 150), 300);
     setTimeout(() => this.playTone(200, 0.5, 'square', 0.2, 80), 600);
   }
+
+  waveStart() {
+    this.playTone(200, 0.2, 'sine', 0.15, 400);
+    setTimeout(() => this.playTone(300, 0.2, 'sine', 0.15, 600), 150);
+    setTimeout(() => this.playTone(400, 0.3, 'sine', 0.15, 800), 300);
+  }
 }
 
-export const audio = new AudioSystem3D();
+export const audio = new AudioSystem();

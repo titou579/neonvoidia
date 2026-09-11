@@ -1,20 +1,18 @@
-import React, { useState, useCallback } from 'react';
-import Game3D from './components/Game3D';
-import MenuScreen from './components/MenuScreen';
-import GameOverScreen from './components/GameOverScreen';
-import { audio } from './game/audio3d';
+import React, { useState, useCallback, useEffect } from 'react';
+import { GameCanvas } from './components/GameCanvas';
+import { audio } from './game/audio';
 
 type Screen = 'menu' | 'playing' | 'gameover';
 
 interface GameResults {
   score: number;
-  distance: number;
   highScore: number;
+  wave: number;
 }
 
 function App() {
   const [screen, setScreen] = useState<Screen>('menu');
-  const [results, setResults] = useState<GameResults>({ score: 0, distance: 0, highScore: 0 });
+  const [results, setResults] = useState<GameResults>({ score: 0, highScore: 0, wave: 0 });
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [gameKey, setGameKey] = useState(0);
 
@@ -25,8 +23,8 @@ function App() {
     setScreen('playing');
   }, []);
 
-  const handleGameOver = useCallback((score: number, distance: number, highScore: number) => {
-    setResults({ score, distance, highScore });
+  const handleGameOver = useCallback((score: number, highScore: number, wave: number) => {
+    setResults({ score, highScore, wave });
     setScreen('gameover');
   }, []);
 
@@ -47,9 +45,11 @@ function App() {
   }, []);
 
   return (
-    <div className="relative w-full h-full overflow-hidden bg-black">
+    <div className="relative w-full h-full overflow-hidden bg-[#0a0a0f]">
+      {screen !== 'playing' && <BackgroundStars />}
+
       {screen === 'playing' && (
-        <Game3D
+        <GameCanvas
           key={gameKey}
           onGameOver={handleGameOver}
           audioEnabled={audioEnabled}
@@ -57,11 +57,7 @@ function App() {
       )}
 
       {screen === 'menu' && (
-        <MenuScreen
-          onStart={handleStart}
-          audioEnabled={audioEnabled}
-          onToggleAudio={toggleAudio}
-        />
+        <MenuScreen onStart={handleStart} audioEnabled={audioEnabled} onToggleAudio={toggleAudio} />
       )}
 
       {screen === 'gameover' && (
@@ -71,6 +67,166 @@ function App() {
           onMenu={handleMenu}
         />
       )}
+
+      <div className="absolute inset-0 scanline pointer-events-none z-50" />
+    </div>
+  );
+}
+
+function BackgroundStars() {
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {Array.from({ length: 50 }).map((_, i) => (
+        <div
+          key={i}
+          className="absolute rounded-full bg-white animate-pulse-slow"
+          style={{
+            width: `${1 + Math.random() * 2}px`,
+            height: `${1 + Math.random() * 2}px`,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            opacity: 0.3 + Math.random() * 0.5,
+            animationDelay: `${Math.random() * 3}s`,
+            animationDuration: `${2 + Math.random() * 3}s`,
+          }}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-cyan-900/20" />
+    </div>
+  );
+}
+
+function MenuScreen({ onStart, audioEnabled, onToggleAudio }: {
+  onStart: () => void;
+  audioEnabled: boolean;
+  onToggleAudio: () => void;
+}) {
+  const [showControls, setShowControls] = useState(false);
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center z-40">
+      <div className="text-center mb-12 animate-float">
+        <h1 className="game-font text-6xl md:text-8xl font-black tracking-wider neon-text text-green-400 mb-2">
+          NEON VOID
+        </h1>
+        <p className="game-font text-lg md:text-xl text-cyan-300 tracking-widest opacity-80">
+          SPACE SHOOTER
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-4 items-center">
+        <button onClick={onStart} className="btn-neon game-font">
+          ▶ JOUER
+        </button>
+        
+        <button
+          onClick={() => setShowControls(!showControls)}
+          className="btn-neon-pink game-font text-sm"
+        >
+          CONTRÔLES
+        </button>
+
+        <button
+          onClick={onToggleAudio}
+          className="game-font text-sm text-gray-400 hover:text-white transition-colors mt-2"
+        >
+          {audioEnabled ? '🔊 SON ACTIVÉ' : '🔇 SON DÉSACTIVÉ'}
+        </button>
+      </div>
+
+      {showControls && (
+        <div className="mt-8 p-6 neon-border rounded-lg bg-black/50 backdrop-blur-sm max-w-md">
+          <h3 className="game-font text-cyan-400 text-lg mb-4 text-center">CONTRÔLES</h3>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="text-gray-400">Déplacement</div>
+            <div className="text-white">ZQSD / Flèches</div>
+            <div className="text-gray-400">Tir</div>
+            <div className="text-white">Espace</div>
+            <div className="text-gray-400">Mobile</div>
+            <div className="text-white">Toucher & Glisser</div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-700">
+            <h4 className="game-font text-yellow-400 text-sm mb-2">POWER-UPS</h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-orange-400">⚡ TIR+</div>
+              <div className="text-gray-300">Tir multiple</div>
+              <div className="text-blue-400">🛡 BOUCLIER</div>
+              <div className="text-gray-300">Protection</div>
+              <div className="text-pink-400">♥ VIE</div>
+              <div className="text-gray-300">+1 vie</div>
+              <div className="text-yellow-400">» VITESSE</div>
+              <div className="text-gray-300">+Rapidité</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-8 text-center">
+        <p className="game-font text-sm text-gray-500">MEILLEUR SCORE</p>
+        <p className="game-font text-2xl text-yellow-400 neon-text-cyan">
+          {parseInt(localStorage.getItem('neonvoid_highscore') || '0').toLocaleString()}
+        </p>
+      </div>
+
+      <div className="absolute bottom-4 text-center text-gray-600 text-xs game-font">
+        <p>APPUYEZ SUR JOUER POUR COMMENCER</p>
+      </div>
+    </div>
+  );
+}
+
+function GameOverScreen({ results, onRestart, onMenu }: {
+  results: GameResults;
+  onRestart: () => void;
+  onMenu: () => void;
+}) {
+  const [showContent, setShowContent] = useState(false);
+  const isNewHighScore = results.score >= results.highScore && results.score > 0;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowContent(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center z-40 bg-black/70 backdrop-blur-sm">
+      <div className={`text-center transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <h1 className="game-font text-5xl md:text-7xl font-black text-red-500 neon-text-pink mb-8">
+          GAME OVER
+        </h1>
+
+        {isNewHighScore && (
+          <div className="mb-6 animate-pulse">
+            <p className="game-font text-2xl text-yellow-400 neon-text">
+              ★ NOUVEAU RECORD ★
+            </p>
+          </div>
+        )}
+
+        <div className="mb-10 space-y-3">
+          <div className="flex justify-between items-center gap-8">
+            <span className="game-font text-gray-400 text-lg">SCORE</span>
+            <span className="game-font text-2xl text-cyan-400">{results.score.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between items-center gap-8">
+            <span className="game-font text-gray-400 text-lg">VAGUE</span>
+            <span className="game-font text-2xl text-yellow-400">{results.wave}</span>
+          </div>
+          <div className="flex justify-between items-center gap-8">
+            <span className="game-font text-gray-400 text-lg">RECORD</span>
+            <span className="game-font text-2xl text-green-400">{results.highScore.toLocaleString()}</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button onClick={onRestart} className="btn-neon game-font">
+            ↻ REJOUER
+          </button>
+          <button onClick={onMenu} className="btn-neon-pink game-font">
+            ◀ MENU
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
